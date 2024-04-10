@@ -10,5 +10,5 @@ class Controller:
     def register_component(self):
         tag = self.view.tagInputBox.text()
         description = self.view.descInputBox.text()
-        id = self.model.register_component(tag, description)
+        id, tag, description = self.model.register_component(tag, description)
         print(f'Componente cadastrado -> ID: {id}, Tag: {tag}, Descrição: {description}')
