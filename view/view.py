@@ -18,5 +18,5 @@ class View(qtw.QWidget):
         
         self.button = qtw.QPushButton('Cadastrar')
         self.layout().addWidget(self.button)
-        
-        self.show()
+    def show(self):
+        super().showMaximized()  # Show the window maximized
