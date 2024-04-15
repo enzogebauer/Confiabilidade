@@ -16,3 +16,12 @@ class Model:
         self.c.execute("INSERT INTO Component VALUES (?, ?, ?)", (id, tag, description))
         self.conn.commit()
         return id, tag, description
+
+    def register_repairs(self, repairs):
+        for repair in repairs:
+            repair_id = repair['repair_id']
+            time_between_fails = repair['time_between_fails']
+            repair_time = repair['repair_time']
+            component_id = repair['component_id']
+            self.c.execute("INSERT INTO Repair VALUES (?, ?, ?, ?)", (repair_id, time_between_fails, repair_time, component_id))
+        self.conn.commit()
