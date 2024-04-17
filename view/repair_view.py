@@ -6,29 +6,52 @@ class RepairView(qtw.QWidget):
         super().__init__()
         self.remove_buttons = []
         self.setWindowTitle('Cadastro de Reparos ')
-        
+        self.setStyleSheet("background-color: #EDF1F7;")
         self.setLayout(qtw.QVBoxLayout())
         
-        self.tagLabel = qtw.QLabel()
+        self.tagLabel = qtw.QLabel("")
+        self.tagLabel.setStyleSheet("font-size: 22px; color: #000;")
         self.layout().addWidget(self.tagLabel)
         
-        self.layout().addWidget(qtw.QLabel("Tempo entre falhas"))
+        label1 = qtw.QLabel("Tempo entre falhas")
+        label1.setStyleSheet("font-size: 22px; color: #000;")
+        self.layout().addWidget(label1)
         self.timeBetweenFailsInputBox = qtw.QLineEdit()
+        self.timeBetweenFailsInputBox.setValidator(qtg.QIntValidator())
+        self.timeBetweenFailsInputBox.setStyleSheet("font-size: 18px; padding: 10px; color:#000")
         self.layout().addWidget(self.timeBetweenFailsInputBox)
         
-        self.layout().addWidget(qtw.QLabel("Tempo de reparo"))
+        label2 = qtw.QLabel("Tempo de reparo")
+        label2.setStyleSheet("font-size: 24px; color: #000;")
+        self.layout().addWidget(label2)
         self.repairTimeInputBox = qtw.QLineEdit()
+        self.repairTimeInputBox.setValidator(qtg.QIntValidator())
+        self.repairTimeInputBox.setStyleSheet("font-size: 18px; padding: 10px; color:#000")
         self.layout().addWidget(self.repairTimeInputBox)
         
         self.button = qtw.QPushButton('Cadastrar Reparo')
         self.button.clicked.connect(self.register_repair)
+        self.button.setStyleSheet("font-size: 18px; padding: 10px; background-color: #5DCFE3; color: #fff;")
         self.layout().addWidget(self.button)
         
         self.repairTable = qtw.QTableWidget(0, 4)
         self.repairTable.setHorizontalHeaderLabels(['ID', 'Tempo entre falhas (dias)', 'Tempo de reparo (dias)', 'Remover'])
+        self.layout().addSpacing(20)
+        # Update the header's stylesheet to change the font color to white
+        self.repairTable.horizontalHeader().setStyleSheet("QHeaderView::section { background-color: #5DCFE3; color: #fff; font-size: 18px; padding: 10px;}")
+
+        # Add these lines to resize the columns to fit the content
+        header = self.repairTable.horizontalHeader()       
+        header.setSectionResizeMode(0, qtw.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, qtw.QHeaderView.Stretch)
+        header.setSectionResizeMode(2, qtw.QHeaderView.Stretch)
+        header.setSectionResizeMode(3, qtw.QHeaderView.ResizeToContents)
+
+        self.repairTable.setStyleSheet("selection-background-color: #5DCFE3; color: #000;")
         self.layout().addWidget(self.repairTable)
 
         self.saveRepairsButton = qtw.QPushButton('Salvar Reparos')
+        self.saveRepairsButton.setStyleSheet("font-size: 18px; padding: 10px; background-color: #5DCFE3; color: #fff;")
         self.layout().addWidget(self.saveRepairsButton)
 
     def update_tag(self, tag):
@@ -63,6 +86,9 @@ class RepairView(qtw.QWidget):
             for i in range(row, self.repairTable.rowCount()):
                 item = self.repairTable.item(i, 0)
                 item.setText(str(i + 1))
+                button = self.remove_buttons[i]
+                button.disconnect()
+                button.clicked.connect(lambda _checked, i=i: self.remove_repair(i))
 
     def show(self):
         super().showMaximized()
