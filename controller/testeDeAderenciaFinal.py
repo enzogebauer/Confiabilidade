@@ -34,15 +34,11 @@ def compare_distributions(fail_times):
     # Ajustar distribuição Weibull de 2 parâmetros
     wb = Fit_Weibull_2P(fail_times)
 
-    # Ajustar distribuição Gamma de 2 parâmetros
-    gamma = Fit_Gamma_2P(fail_times)
-
     # Ajustar distribuição Lognormal de 2 parâmetros
     lognorm = Fit_Lognormal_2P(fail_times)
 
     # Calcular valores previstos para cada distribuição
     predicted_wb = wb.distribution.CDF(fail_times)
-    predicted_gamma = gamma.distribution.CDF(fail_times)
     predicted_lognorm = norm.cdf(np.log(fail_times), loc=lognorm.mu, scale=lognorm.sigma)
 
     # Calcular métricas para distribuição Weibull
@@ -50,10 +46,6 @@ def compare_distributions(fail_times):
     mae_wb = calculate_mae(np.sort(fail_times), predicted_wb)
     mse_wb = calculate_mse(np.sort(fail_times), predicted_wb)
 
-    # Calcular métricas para distribuição Gamma
-    r_squared_gamma = calculate_r_squared(np.sort(fail_times), predicted_gamma)
-    mae_gamma = calculate_mae(np.sort(fail_times), predicted_gamma)
-    mse_gamma = calculate_mse(np.sort(fail_times), predicted_gamma)
 
     # Calcular métricas para distribuição Lognormal
     r_squared_lognorm = calculate_r_squared(np.sort(fail_times), predicted_lognorm)
@@ -62,13 +54,11 @@ def compare_distributions(fail_times):
 
     # Exibir as métricas calculadas para cada distribuição
     print(f"Weibull - R²: {r_squared_wb}, MAE: {mae_wb}, MSE: {mse_wb}")
-    print(f"Gamma - R²: {r_squared_gamma}, MAE: {mae_gamma}, MSE: {mse_gamma}")
     print(f"Lognormal - R²: {r_squared_lognorm}, MAE: {mae_lognorm}, MSE: {mse_lognorm}")
 
     # Comparar as métricas e determinar a distribuição com maior aderência
     metrics = {
         'Weibull': (r_squared_wb, mae_wb, mse_wb),
-        'Gamma': (r_squared_gamma, mae_gamma, mse_gamma),
         'Lognormal': (r_squared_lognorm, mae_lognorm, mse_lognorm)
     }
 
@@ -88,12 +78,10 @@ def plot_reliability(fail_times, distribution):
     """
     if distribution == 'Weibull':
         dist = Fit_Weibull_2P(fail_times).distribution
-    elif distribution == 'Gamma':
-        dist = Fit_Gamma_2P(fail_times).distribution
     elif distribution == 'Lognormal':
         dist = Fit_Lognormal_2P(fail_times).distribution
     else:
-        raise ValueError("Distribuição inválida. Escolha entre 'Weibull', 'Gamma' ou 'Lognormal'.")
+        raise ValueError("Distribuição inválida. Escolha entre 'Weibull' ou 'Lognormal'.")
 
     times = np.linspace(min(fail_times), max(fail_times), 1000)
     reliability = 1 - dist.CDF(times)

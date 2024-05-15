@@ -76,7 +76,6 @@ class RepairView(qtw.QWidget):
         remove_button = qtw.QPushButton('Remover')
         remove_button.clicked.connect(lambda: self.remove_repair(row))
         self.repairTable.setCellWidget(row, 3, remove_button)
-        
         self.remove_buttons.append(remove_button)
 
     def remove_repair(self, row):
