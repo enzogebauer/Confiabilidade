@@ -1,5 +1,8 @@
 import PyQt5.QtWidgets as qtw
 import PyQt5.QtGui as qtg
+from PyQt5.QtCore import QSize
+
+from view_settings import ViewSettings
 
 class View(qtw.QWidget):
     def __init__(self):
@@ -37,5 +40,6 @@ class View(qtw.QWidget):
         self.button = qtw.QPushButton('Cadastrar')
         self.button.setStyleSheet("font-size: 18px; padding: 10px; background-color: #5DCFE3; color: #fff;")
         grid.addWidget(self.button, 6, 0, 1, 2)
-    def show(self):
-        super().showMaximized()  # Show the window maximized
+
+        # Aplicando as configurações padrão
+        ViewSettings.apply_settings(self)

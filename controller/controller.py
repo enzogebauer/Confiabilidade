@@ -10,7 +10,7 @@ class Controller:
         self.repairView = RepairView()
         self.view.button.clicked.connect(self.register_component)
         self.repairView.saveRepairsButton.clicked.connect(self.register_repairs)
-        self.view.show() 
+        self.view.show()
 
     def register_component(self):
         tag = self.view.tagInputBox.text()

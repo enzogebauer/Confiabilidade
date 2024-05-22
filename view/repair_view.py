@@ -1,11 +1,14 @@
 import PyQt5.QtWidgets as qtw
 import PyQt5.QtGui as qtg
+from PyQt5.QtCore import QSize
+
+from view_settings import ViewSettings
 
 class RepairView(qtw.QWidget):
     def __init__(self):
         super().__init__()
         self.remove_buttons = []
-        self.setWindowTitle('Cadastro de Reparos ')
+        self.setWindowTitle('Cadastro de Reparos')
         self.setStyleSheet("background-color: #EDF1F7;")
         self.setLayout(qtw.QVBoxLayout())
         
@@ -50,9 +53,12 @@ class RepairView(qtw.QWidget):
         self.repairTable.setStyleSheet("selection-background-color: #5DCFE3; color: #000;")
         self.layout().addWidget(self.repairTable)
 
-        self.saveRepairsButton = qtw.QPushButton('Salvar Reparos')
+        self.saveRepairsButton = qtw.QPushButton('Salvar Rrrreparos')
         self.saveRepairsButton.setStyleSheet("font-size: 18px; padding: 10px; background-color: #5DCFE3; color: #fff;")
         self.layout().addWidget(self.saveRepairsButton)
+
+        # Aplicando as configurações padrão
+        ViewSettings.apply_settings(self)
 
     def update_tag(self, tag):
         self.tagLabel.setText(f'Tag: {tag}')
@@ -89,6 +95,3 @@ class RepairView(qtw.QWidget):
                 button = self.remove_buttons[i]
                 button.disconnect()
                 button.clicked.connect(lambda _checked, i=i: self.remove_repair(i))
-
-    def show(self):
-        super().showMaximized()
