@@ -66,11 +66,12 @@ def compare_distributions(fail_times):
     best_distribution = max(metrics, key=lambda k: metrics[k][0])
     
     # Plotar o gráfico de confiabilidade para a distribuição escolhida
-    plot_reliability(fail_times, best_distribution)
+    plot_reliability(fail_times, 'Weibull', 'weibull_reliability.png')
+    plot_reliability(fail_times, 'Lognormal', 'lognormal_reliability.png')
 
     return best_distribution
 
-def plot_reliability(fail_times, distribution):
+def plot_reliability(fail_times, distribution, filename):
     """
     Plota o gráfico de confiabilidade para a distribuição escolhida.
 
@@ -93,7 +94,7 @@ def plot_reliability(fail_times, distribution):
     plt.title(f'Gráfico de Confiabilidade para Distribuição {distribution}')
     plt.legend()
     plt.grid(True)
-    plt.show()
+    plt.savefig(filename)
 
 # Lista de tempos de falha
 fail_times = [24, 38, 56, 85, 122, 157, 240, 470, 680, 930, 1320, 1655]

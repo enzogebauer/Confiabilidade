@@ -1,6 +1,7 @@
 from model import Model
 from view.view import View
 from view.repair_view import RepairView
+from view.teste_aderencia import TesteAderencia
 import uuid
 from PyQt5.QtWidgets import QMessageBox
 
@@ -37,4 +38,9 @@ class Controller:
                 rt_unit = self.repairView.repairTable.item(i, 4).text()
                 repairs.append({'repair_id': repair_id, 'time_between_fails': time_between_fails, 'repair_time': repair_time, 'component_id': self.component_id, 'tbf_unit': tbf_unit, 'rt_unit': rt_unit})
                 print(f'Reparo cadastrado -> ID: {repair_id}, tempo entre falhas: {time_between_fails} {tbf_unit}, Tempo de reparo: {repair_time} {rt_unit}, componente: {self.component_id}')
+            self.repairView.hide()
             self.model.register_repairs(repairs)
+            self.testeAderencia = TesteAderencia()
+            self.testeAderencia.show()
+            
+        

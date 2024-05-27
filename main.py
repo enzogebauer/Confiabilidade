@@ -1,6 +1,6 @@
 import sys
 sys.path.extend(['./model', './view', './controller'])
-from controller import Controller
+from controller.controller import Controller
 import PyQt5.QtWidgets as qtw
 
 if __name__ == '__main__':
