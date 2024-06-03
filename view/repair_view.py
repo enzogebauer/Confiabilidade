@@ -11,47 +11,45 @@ class RepairView(qtw.QWidget):
         self.setWindowTitle('Cadastro de Reparos')
         self.setStyleSheet("background-color: #EDF1F7;")
         self.setLayout(qtw.QVBoxLayout())
-        
+
         self.tagLabel = qtw.QLabel("")
         self.tagLabel.setStyleSheet("font-size: 22px; color: #000;")
         self.layout().addWidget(self.tagLabel)
-        
+
         label1 = qtw.QLabel("Tempo entre falhas")
         label1.setStyleSheet("font-size: 22px; color: #000;")
         self.layout().addWidget(label1)
         self.timeBetweenFailsInputBox = qtw.QLineEdit()
         self.timeBetweenFailsInputBox.setStyleSheet("font-size: 18px; padding: 10px; color:#000")
         self.layout().addWidget(self.timeBetweenFailsInputBox)
-        
+
         self.tbfUnitSelector = qtw.QComboBox()
         self.tbfUnitSelector.addItems(["horas", "dias"])
         self.tbfUnitSelector.setStyleSheet("font-size: 18px; padding: 10px; color:#000; background-color:#5DCFE3;")
         self.layout().addWidget(self.tbfUnitSelector)
-        
+
         label2 = qtw.QLabel("Tempo de reparo")
         label2.setStyleSheet("font-size: 24px; color: #000;")
         self.layout().addWidget(label2)
         self.repairTimeInputBox = qtw.QLineEdit()
         self.repairTimeInputBox.setStyleSheet("font-size: 18px; padding: 10px; color:#000")
         self.layout().addWidget(self.repairTimeInputBox)
-        
+
         self.rtUnitSelector = qtw.QComboBox()
         self.rtUnitSelector.addItems(["horas", "dias"])
         self.rtUnitSelector.setStyleSheet("font-size: 18px; padding: 10px; color:#000; background-color:#5DCFE3;")
         self.layout().addWidget(self.rtUnitSelector)
-        
+
         self.button = qtw.QPushButton('Cadastrar Reparo')
         self.button.clicked.connect(self.register_repair)
         self.button.setStyleSheet("font-size: 18px; padding: 10px; background-color: #5DCFE3; color: #fff;")
         self.layout().addWidget(self.button)
-        
+
         self.repairTable = qtw.QTableWidget(0, 6)
-        self.repairTable.setHorizontalHeaderLabels(['ID', 'Tempo entre falhas', 'Unidade de tempo entre falhas', 'Tempo de reparo', 'Unidade de tempo de reparo', 'Remover'])
+        self.repairTable.setHorizontalHeaderLabels(['ID', 'Tempo entre falhas', 'Unidade TBF', 'Tempo de reparo', 'Unidade RT', 'Remover'])
         self.layout().addSpacing(20)
-        # Update the header's stylesheet to change the font color to white
         self.repairTable.horizontalHeader().setStyleSheet("QHeaderView::section { background-color: #5DCFE3; color: #fff; font-size: 18px; padding: 10px;}")
 
-        # Add these lines to resize the columns to fit the content
         header = self.repairTable.horizontalHeader()       
         header.setSectionResizeMode(0, qtw.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(1, qtw.QHeaderView.Stretch)
@@ -67,7 +65,6 @@ class RepairView(qtw.QWidget):
         self.saveRepairsButton.setStyleSheet("font-size: 18px; padding: 10px; background-color: #5DCFE3; color: #fff;")
         self.layout().addWidget(self.saveRepairsButton)
 
-        # Set the regex validators
         regex = qtc.QRegExp(r'^\d+(\.\d+)?(/\d+(\.\d+)?)?$')
         validator = qtg.QRegExpValidator(regex)
         self.timeBetweenFailsInputBox.setValidator(validator)
@@ -87,7 +84,7 @@ class RepairView(qtw.QWidget):
             return
 
         id = self.repairTable.rowCount() + 1
-        self.add_repair(id, str(time_between_fails), tbf_unit, str(repair_time), rt_unit)
+        self.add_repair(id, time_between_fails, tbf_unit, repair_time, rt_unit)
 
         self.timeBetweenFailsInputBox.clear()
         self.repairTimeInputBox.clear()
@@ -99,6 +96,7 @@ class RepairView(qtw.QWidget):
         if (existing_tbf_units and tbf_unit not in existing_tbf_units) or (existing_rt_units and rt_unit not in existing_rt_units):
             return False
         return True
+
     def get_column_units(self, column_index):
         units = []
         for row in range(self.repairTable.rowCount()):
@@ -109,7 +107,7 @@ class RepairView(qtw.QWidget):
 
     def parse_input(self, input_str):
         try:
-            if ('/' in input_str) and (input_str.count('/') == 1):
+            if '/' in input_str:
                 return float(Fraction(input_str))
             else:
                 return float(input_str)
@@ -119,21 +117,16 @@ class RepairView(qtw.QWidget):
     def add_repair(self, id, time_between_fails, tbf_unit, repair_time, rt_unit):
         row = self.repairTable.rowCount()
         self.repairTable.insertRow(row)
-        self.add_non_editable_item(row, 0, str(id))
-        self.add_non_editable_item(row, 1, str(time_between_fails))
-        self.add_non_editable_item(row, 2, tbf_unit)
-        self.add_non_editable_item(row, 3, str(repair_time))
-        self.add_non_editable_item(row, 4, rt_unit)
-        
+        self.repairTable.setItem(row, 0, qtw.QTableWidgetItem(str(id)))
+        self.repairTable.setItem(row, 1, qtw.QTableWidgetItem(str(time_between_fails)))
+        self.repairTable.setItem(row, 2, qtw.QTableWidgetItem(str(tbf_unit)))
+        self.repairTable.setItem(row, 3, qtw.QTableWidgetItem(str(repair_time)))
+        self.repairTable.setItem(row, 4, qtw.QTableWidgetItem(rt_unit))
+
         remove_button = qtw.QPushButton('Remover')
         remove_button.clicked.connect(lambda: self.remove_repair(row))
         self.repairTable.setCellWidget(row, 5, remove_button)
         self.remove_buttons.append(remove_button)
-
-    def add_non_editable_item(self, row, column, text):
-        item = qtw.QTableWidgetItem(text)
-        item.setFlags(item.flags() & ~qtc.Qt.ItemIsEditable)
-        self.repairTable.setItem(row, column, item)
 
     def remove_repair(self, row):
         if row < self.repairTable.rowCount():
