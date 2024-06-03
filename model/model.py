@@ -8,7 +8,7 @@ class Model:
         self.c.execute('''CREATE TABLE IF NOT EXISTS Component
                           (id text PRIMARY KEY, tag text, description text)''')
         self.c.execute('''CREATE TABLE IF NOT EXISTS Repair
-                          (repair_id text PRIMARY KEY, time_between_fails text, repair_time text, component_id text,
+                          (repair_id text PRIMARY KEY, time_between_fails text, repair_time text, component_id text, tbf_unit text, rt_unit text,
                           FOREIGN KEY(component_id) REFERENCES Component(id))''')
 
     def register_component(self, tag, description):
@@ -23,5 +23,7 @@ class Model:
             time_between_fails = repair['time_between_fails']
             repair_time = repair['repair_time']
             component_id = repair['component_id']
-            self.c.execute("INSERT INTO Repair VALUES (?, ?, ?, ?)", (repair_id, time_between_fails, repair_time, component_id))
+            tbf_unit = repair['tbf_unit']
+            rt_unit = repair['rt_unit']
+            self.c.execute("INSERT INTO Repair VALUES (?, ?, ?, ?, ?, ?)", (repair_id, time_between_fails, repair_time, component_id, tbf_unit, rt_unit))
         self.conn.commit()
