@@ -27,3 +27,14 @@ class Model:
             rt_unit = repair['rt_unit']
             self.c.execute("INSERT INTO Repair VALUES (?, ?, ?, ?, ?, ?)", (repair_id, time_between_fails, repair_time, component_id, tbf_unit, rt_unit))
         self.conn.commit()
+    
+    def select_tbf_data(self, component_id):
+        data = []
+        try:
+            self.c.execute("SELECT time_between_fails FROM Repair WHERE component_id = ?", (component_id,))
+            rows = self.c.fetchall()
+            data = [row[0] for row in rows]
+        except sqlite3.Error as e:
+            print("Error while fetching TBF data:", e)
+        finally:
+            return data
