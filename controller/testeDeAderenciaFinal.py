@@ -3,6 +3,12 @@ import matplotlib.pyplot as plt
 from reliability.Fitters import Fit_Weibull_2P, Fit_Lognormal_2P
 from scipy.stats import norm
 
+def calculate_time_weibull( alpha, beta, reliability_min):
+    return beta * (-np.log(reliability_min)) ** (1 / alpha)
+
+def calculate_time_lognormal( mu, sigma, reliability_min):
+    z = norm.ppf(1 - reliability_min)
+    return np.exp(mu + sigma * z)
 
 def calculate_r_squared(observed, predicted):
     """
