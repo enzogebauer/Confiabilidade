@@ -1,16 +1,18 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from reliability.Fitters import Fit_Weibull_2P, Fit_Gamma_2P, Fit_Lognormal_2P
+from reliability.Fitters import Fit_Weibull_2P, Fit_Lognormal_2P
 from scipy.stats import norm
+
 
 def calculate_r_squared(observed, predicted):
     """
     Calcula o coeficiente de determinação (R²) entre os valores observados e previstos.
     """
-    ss_residual = np.sum((observed - predicted)**2)
-    ss_total = np.sum((observed - np.mean(observed))**2)
+    ss_residual = np.sum((observed - predicted) ** 2)
+    ss_total = np.sum((observed - np.mean(observed)) ** 2)
     r_squared = 1 - (ss_residual / ss_total)
     return r_squared
+
 
 def calculate_mae(observed, predicted):
     """
@@ -19,14 +21,16 @@ def calculate_mae(observed, predicted):
     mae = np.mean(np.abs(observed - predicted))
     return mae
 
+
 def calculate_mse(observed, predicted):
     """
     Calcula o erro quadrático médio (MSE) entre os valores observados e previstos.
     """
-    mse = np.mean((observed - predicted)**2)
+    mse = np.mean((observed - predicted) ** 2)
     return mse
 
-def compare_distributions(fail_times):
+
+def compare_distributions(fail_times, tbf_unit):
     """
     Compara as distribuições Weibull, Gamma e Lognormal com base nas métricas (R², MAE e MSE)
     e retorna a distribuição que apresenta a maior aderência aos dados.
@@ -39,13 +43,14 @@ def compare_distributions(fail_times):
 
     # Calcular valores previstos para cada distribuição
     predicted_wb = wb.distribution.CDF(fail_times)
-    predicted_lognorm = norm.cdf(np.log(fail_times), loc=lognorm.mu, scale=lognorm.sigma)
+    predicted_lognorm = norm.cdf(
+        np.log(fail_times), loc=lognorm.mu, scale=lognorm.sigma
+    )
 
     # Calcular métricas para distribuição Weibull
     r_squared_wb = calculate_r_squared(np.sort(fail_times), predicted_wb)
     mae_wb = calculate_mae(np.sort(fail_times), predicted_wb)
     mse_wb = calculate_mse(np.sort(fail_times), predicted_wb)
-
 
     # Calcular métricas para distribuição Lognormal
     r_squared_lognorm = calculate_r_squared(np.sort(fail_times), predicted_lognorm)
@@ -54,50 +59,58 @@ def compare_distributions(fail_times):
 
     # Exibir as métricas calculadas para cada distribuição
     print(f"Weibull - R²: {r_squared_wb}, MAE: {mae_wb}, MSE: {mse_wb}")
-    print(f"Lognormal - R²: {r_squared_lognorm}, MAE: {mae_lognorm}, MSE: {mse_lognorm}")
+    print(
+        f"Lognormal - R²: {r_squared_lognorm}, MAE: {mae_lognorm}, MSE: {mse_lognorm}"
+    )
 
     # Comparar as métricas e determinar a distribuição com maior aderência
     metrics = {
-        'Weibull': (r_squared_wb, mae_wb, mse_wb),
-        'Lognormal': (r_squared_lognorm, mae_lognorm, mse_lognorm)
+        "Weibull": (r_squared_wb, mae_wb, mse_wb),
+        "Lognormal": (r_squared_lognorm, mae_lognorm, mse_lognorm),
     }
 
     # Identificar a distribuição com a maior aderência (maior R²)
     best_distribution = max(metrics, key=lambda k: metrics[k][0])
-    
+    print(f"A distribuição com maior aderência é: {best_distribution}")
+
     # Plotar o gráfico de confiabilidade para a distribuição escolhida
-    plot_reliability(fail_times, best_distribution)
-
-    return best_distribution
-
-def plot_reliability(fail_times, distribution):
-    """
-    Plota o gráfico de confiabilidade para a distribuição escolhida.
-
-    A confiabilidade é calculada como 1 - CDF (função de distribuição acumulada).
-    """
-    if distribution == 'Weibull':
-        dist = Fit_Weibull_2P(fail_times).distribution
-    elif distribution == 'Lognormal':
-        dist = Fit_Lognormal_2P(fail_times).distribution
+    if best_distribution == "Weibull":
+        dist = Fit_Weibull_2P(
+            failures=fail_times,
+            right_censored=None,
+            show_probability_plot=None,
+            print_results=None,
+            CI=0.90,
+            quantiles=None,
+            CI_type="time",
+            method="MLE",
+            optimizer=None,
+            force_beta=None,
+            downsample_scatterplot=True,
+        )
     else:
-        raise ValueError("Distribuição inválida. Escolha entre 'Weibull' ou 'Lognormal'.")
+        dist = Fit_Lognormal_2P(
+            failures=fail_times,
+            right_censored=None,
+            show_probability_plot=None,
+            print_results=None,
+            CI=0.90,
+            quantiles=None,
+            optimizer=None,
+            CI_type="time",
+            method="MLE",
+            force_sigma=None,
+            downsample_scatterplot=None,
+        )
 
     times = np.linspace(min(fail_times), max(fail_times), 1000)
-    reliability = 1 - dist.CDF(times)
-    
+    reliability = 1 - dist.distribution.CDF(times)
+
     plt.figure(figsize=(8, 6))
-    plt.plot(times, reliability, label=distribution)
-    plt.xlabel('Tempo')
-    plt.ylabel('Confiabilidade')
-    plt.title(f'Gráfico de Confiabilidade para Distribuição {distribution}')
-    plt.legend()
-    plt.grid(True)
-    plt.show()
+    plt.plot(times, reliability, label=best_distribution)
+    plt.xlabel(f"Tempo ({tbf_unit})")
+    plt.ylabel("Confiabilidade em %")
+    plt.title(f"Gráfico de Confiabilidade para Distribuição {best_distribution}")
+    plt.savefig("best_distribution.png")
 
-# Lista de tempos de falha
-fail_times = [24, 38, 56, 85, 122, 157, 240, 470, 680, 930, 1320, 1655]
-
-# Comparar as distribuições e obter a distribuição com maior aderência
-best_fit = compare_distributions(fail_times)
-print(f"A distribuição com maior aderência é: {best_fit}")
+    return dist, best_distribution
