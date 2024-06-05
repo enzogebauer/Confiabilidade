@@ -69,13 +69,24 @@ class Controller:
             self.aderency_view.show()
 
     def run_test_and_show_results(self):
-        fail_times = [
-            float(time) for time in self.model.select_tbf_data(self.get_component_id())
-        ]
-        if not fail_times:
+        time_between_fails, tbf_unit = self.model.select_tbf_data(
+            self.get_component_id()
+        )
+
+        # Verificar se há dados de tempo entre falhas
+        if not time_between_fails:
             print("Não há dados de tempo entre falhas para o componente.")
             return
-        dist, best_distribution = compare_distributions(fail_times)
+
+        # Verificar se a unidade de tempo está presente
+        if tbf_unit is None:
+            print("Não há unidade de tempo entre falhas disponível.")
+            return
+
+        print("TIME BETWEEN FAILS:", time_between_fails, "TBF UNIT:", tbf_unit)
+
+        fail_times = [float(time) for time in time_between_fails]
+        dist, best_distribution = compare_distributions(fail_times, tbf_unit)
         if best_distribution == "Weibull":
             p1 = dist.alpha
             p2 = dist.beta

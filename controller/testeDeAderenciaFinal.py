@@ -30,7 +30,7 @@ def calculate_mse(observed, predicted):
     return mse
 
 
-def compare_distributions(fail_times):
+def compare_distributions(fail_times, tbf_unit):
     """
     Compara as distribuições Weibull, Gamma e Lognormal com base nas métricas (R², MAE e MSE)
     e retorna a distribuição que apresenta a maior aderência aos dados.
@@ -72,12 +72,13 @@ def compare_distributions(fail_times):
     # Identificar a distribuição com a maior aderência (maior R²)
     best_distribution = max(metrics, key=lambda k: metrics[k][0])
     print(f"A distribuição com maior aderência é: {best_distribution}")
+
     # Plotar o gráfico de confiabilidade para a distribuição escolhida
     if best_distribution == "Weibull":
         dist = Fit_Weibull_2P(
             failures=fail_times,
             right_censored=None,
-            show_probability_plot=True,
+            show_probability_plot=None,
             print_results=None,
             CI=0.90,
             quantiles=None,
@@ -91,7 +92,7 @@ def compare_distributions(fail_times):
         dist = Fit_Lognormal_2P(
             failures=fail_times,
             right_censored=None,
-            show_probability_plot=True,
+            show_probability_plot=None,
             print_results=None,
             CI=0.90,
             quantiles=None,
@@ -101,17 +102,15 @@ def compare_distributions(fail_times):
             force_sigma=None,
             downsample_scatterplot=None,
         )
+
     times = np.linspace(min(fail_times), max(fail_times), 1000)
     reliability = 1 - dist.distribution.CDF(times)
 
     plt.figure(figsize=(8, 6))
     plt.plot(times, reliability, label=best_distribution)
-    plt.xlabel("Tempo")
-    plt.ylabel("Confiabilidade")
+    plt.xlabel(f"Tempo ({tbf_unit})")
+    plt.ylabel("Confiabilidade em %")
     plt.title(f"Gráfico de Confiabilidade para Distribuição {best_distribution}")
-    plt.legend()
-    plt.grid(True)
-    plt.show()
     plt.savefig("best_distribution.png")
 
     return dist, best_distribution
