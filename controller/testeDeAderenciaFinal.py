@@ -115,7 +115,7 @@ def compare_distributions(fail_times, tbf_unit):
     plt.figure(figsize=(8, 6))
     plt.plot(times, reliability, label=best_distribution)
     plt.xlabel(f"Tempo ({tbf_unit})")
-    plt.ylabel("Confiabilidade em %")
+    plt.ylabel("Confiabilidade em decimal com valores de 0 a 1")
     plt.title(f"Gráfico de Confiabilidade para Distribuição {best_distribution}")
     plt.savefig("best_distribution.png")
 

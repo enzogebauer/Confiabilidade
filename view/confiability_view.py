@@ -1,13 +1,32 @@
 import PyQt5.QtWidgets as qtw
 import PyQt5.QtGui as qtg
-from PyQt5.QtCore import QSize
+import PyQt5.QtCore as QtCore
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+class PercentValidator(qtg.QValidator):
+    def validate(self, input, pos):
+        # Remove the '%' sign to validate the number
+        if input.endswith('%'):
+            input = input[:-1]
 
-# from view_settings import ViewSettings
+        if input == '':
+            return qtg.QValidator.Intermediate, input, pos
+
+        try:
+            value = float(input)
+            if 0 <= value <= 100:
+                return qtg.QValidator.Acceptable, input + '%', pos
+            else:
+                return qtg.QValidator.Invalid, input, pos
+        except ValueError:
+            return qtg.QValidator.Invalid, input, pos
+
+    def fixup(self, input):
+        # Add the '%' sign if it's missing
+        if not input.endswith('%'):
+            return input + '%'
+        return input
 
 class ConfiabilityView(qtw.QWidget):
-
     def __init__(self):
         super().__init__()
         self.setWindowTitle('Análise de Confiabilidade')
@@ -26,7 +45,7 @@ class ConfiabilityView(qtw.QWidget):
         inputLabel.setStyleSheet("font-size: 16px; color: #000;")
         grid.addWidget(inputLabel, 0, 0, 1, 2)  # Place the label above the input box
         self.inputBox = qtw.QLineEdit()
-        self.inputBox.setValidator(qtg.QDoubleValidator(0.0, 100.0, 2))
+        self.inputBox.setValidator(PercentValidator())
         self.inputBox.setPlaceholderText("Qual a probabilidade mínima que você deseja para a confiabilidade")
         self.inputBox.setStyleSheet("font-size: 18px; padding: 10px; color:#000")
         grid.addWidget(self.inputBox, 1, 0, 1, 2)  # Place the input box below the label
@@ -41,12 +60,18 @@ class ConfiabilityView(qtw.QWidget):
         grid.addWidget(self.responseOutput, 4, 0, 1, 2)  # Place the input box below the label
 
         grid.setRowStretch(5, 1)  # Add an empty space after the input box
-        
+
         self.registerButton = qtw.QPushButton('Analisar')
         self.registerButton.setStyleSheet("font-size: 18px; padding: 10px; background-color: #5DCFE3; color: #fff;")
         grid.addWidget(self.registerButton, 6, 0, 1, 2)
 
         grid.setRowStretch(7, 1)
-    
+
     def show(self):
         super().showMaximized()
+
+if __name__ == '__main__':
+    app = qtw.QApplication([])
+    mainWin = ConfiabilityView()
+    mainWin.show()
+    app.exec_()
