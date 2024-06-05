@@ -25,6 +25,7 @@ class Controller:
         self.beta = None
         self.mu = None
         self.sigma = None
+        self.tbf_unit = None
         
 
     def get_component_id(self):
@@ -78,7 +79,7 @@ class Controller:
             self.aderency_view.show()
 
     def run_test_and_show_results(self):
-        time_between_fails, tbf_unit = self.model.select_tbf_data(
+        time_between_fails, self.tbf_unit = self.model.select_tbf_data(
             self.get_component_id()
         )
 
@@ -88,14 +89,14 @@ class Controller:
             return
 
         # Verificar se a unidade de tempo está presente
-        if tbf_unit is None:
+        if self.tbf_unit is None:
             print("Não há unidade de tempo entre falhas disponível.")
             return
 
-        print("TIME BETWEEN FAILS:", time_between_fails, "TBF UNIT:", tbf_unit)
+        print("TIME BETWEEN FAILS:", time_between_fails, "TBF UNIT:", self.tbf_unit)
 
         fail_times = [float(time) for time in time_between_fails]
-        dist, self.best_distribution = compare_distributions(fail_times, tbf_unit)
+        dist, self.best_distribution = compare_distributions(fail_times, self.tbf_unit)
         if self.best_distribution == "Weibull":
             self.alpha = dist.alpha
             self.beta = dist.beta
@@ -118,8 +119,11 @@ class Controller:
         self.confiability_view.registerButton.clicked.connect(self.calculate_time_from_confidence)
 
     def calculate_time_from_confidence(self):
-        confidence = float(self.confiability_view.inputBox.text())
-        confidence = confidence/100
+        confidence_text = self.confiability_view.inputBox.text()
+        if confidence_text.endswith('%'):
+            confidence_text = confidence_text[:-1]  # Remove the '%' symbol
+        confidence = float(confidence_text)
+        confidence = confidence / 100
 
         print(f" Sigma: {self.sigma}")
 
@@ -128,5 +132,5 @@ class Controller:
         else:
             time_for_reliability = calculate_time_lognormal(self.mu, self.sigma, confidence)
 
-        self.confiability_view.responseOutput.setText(f"Tempo correspondente: {time_for_reliability:.2f}")
-        print(f"Tempo correspondente: {time_for_reliability:.2f}")
+        self.confiability_view.responseOutput.setText(f"Tempo correspondente: {time_for_reliability:.2f} {self.tbf_unit}")
+        print(f"Tempo correspondente: {time_for_reliability:.2f} {self.tbf_unit}")
