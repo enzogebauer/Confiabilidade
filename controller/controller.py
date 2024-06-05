@@ -2,9 +2,10 @@ from model import Model
 from view.view import View
 from view.repair_view import RepairView
 from view.aderency_view import AderencyView
+from view.confiability_view import ConfiabilityView
 import uuid
 from PyQt5.QtWidgets import QMessageBox
-from .testeDeAderenciaFinal import compare_distributions
+from .testeDeAderenciaFinal import compare_distributions, calculate_time_weibull, calculate_time_lognormal
 
 
 class Controller:
@@ -17,6 +18,14 @@ class Controller:
         self.view.show()
         self.aderency_view = AderencyView()
         self.aderency_view.shown.connect(self.run_test_and_show_results)
+        self.confiability_view = ConfiabilityView()
+        self.aderency_view.realizeAnalysis.clicked.connect(self.switch_to_confiability_view)
+        self.best_distribution = None
+        self.alpha = None
+        self.beta = None
+        self.mu = None
+        self.sigma = None
+        
 
     def get_component_id(self):
         return self.component_id
@@ -86,19 +95,38 @@ class Controller:
         print("TIME BETWEEN FAILS:", time_between_fails, "TBF UNIT:", tbf_unit)
 
         fail_times = [float(time) for time in time_between_fails]
-        dist, best_distribution = compare_distributions(fail_times, tbf_unit)
-        if best_distribution == "Weibull":
-            p1 = dist.alpha
-            p2 = dist.beta
+        dist, self.best_distribution = compare_distributions(fail_times, tbf_unit)
+        if self.best_distribution == "Weibull":
+            self.alpha = dist.alpha
+            self.beta = dist.beta
             self.aderency_view.display_image(
                 "best_distribution.png",
-                f"Gráfico da Melhor Distribuição: Weibull, CI: 90%, α: {p1:.2f}, β: {p2:.2f}",
+                f"Gráfico da Melhor Distribuição: Weibull, CI: 90%, α: {self.alpha:.2f}, β: {self.beta:.2f}",
             )
         else:
-            p1 = dist.mu
-            p2 = dist.sigma
+            self.mu = dist.mu
+            self.sigma = dist.sigma
             self.aderency_view.display_image(
                 "best_distribution.png",
-                f"Gráfico da Melhor Distribuição: Lognormal, CI: 90%, μ: {p1:.2f}, σ: {p2:.2f}",
+                f"Gráfico da Melhor Distribuição: Lognormal, CI: 90%, μ: {self.mu:.2f}, σ: {self.sigma:.2f}",
             )
-        print(f"A distribuição com maior aderência é: {best_distribution}")
+        print(f"A distribuição com maior aderência é: {self.best_distribution}")
+        
+    def switch_to_confiability_view(self):
+        # self.aderency_view.hide()
+        self.confiability_view.show()
+        self.confiability_view.registerButton.clicked.connect(self.calculate_time_from_confidence)
+
+    def calculate_time_from_confidence(self):
+        confidence = float(self.confiability_view.inputBox.text())
+        confidence = confidence/100
+
+        print(f" Sigma: {self.sigma}")
+
+        if self.best_distribution == "Weibull":
+            time_for_reliability = calculate_time_weibull(self.alpha, self.beta, confidence)
+        else:
+            time_for_reliability = calculate_time_lognormal(self.mu, self.sigma, confidence)
+
+        self.confiability_view.responseOutput.setText(f"Tempo correspondente: {time_for_reliability:.2f}")
+        print(f"Tempo correspondente: {time_for_reliability:.2f}")

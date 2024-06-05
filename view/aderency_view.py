@@ -1,9 +1,7 @@
 import os
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QScrollArea
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QScrollArea, QPushButton
 from PyQt5.QtGui import QPixmap, QFont
 from PyQt5.QtCore import Qt, pyqtSignal
-import matplotlib.pyplot as plt
-
 
 class AderencyView(QWidget):
     shown = pyqtSignal()
@@ -29,6 +27,11 @@ class AderencyView(QWidget):
         main_layout.addWidget(self.scroll_area)
         self.setLayout(main_layout)
 
+        # Adicionar botão realizeAnalysis no final
+        self.realizeAnalysis = QPushButton('Realizar Análise')
+        self.realizeAnalysis.setStyleSheet("font-size: 18px; padding: 10px; background-color: #5DCFE3; color: #fff;")
+        self.layout.addWidget(self.realizeAnalysis, alignment=Qt.AlignBottom)
+
     def showEvent(self, event):
         super().showEvent(event)
         self.shown.emit()
@@ -41,19 +44,19 @@ class AderencyView(QWidget):
             title_label.setFont(QFont("Arial", 24))
             # Set text color to black
             title_label.setStyleSheet("color: black;")  # Apply inline style
-            self.layout.addWidget(title_label, alignment=Qt.AlignCenter)
+            self.layout.insertWidget(self.layout.count() - 1, title_label, alignment=Qt.AlignCenter)
 
             if distribution_parameters:
                 # Adicionar parâmetros da distribuição
                 params_label = QLabel(self)
                 params_label.setText(f"Parâmetros: {distribution_parameters}")
-                self.layout.addWidget(params_label, alignment=Qt.AlignCenter)
+                self.layout.insertWidget(self.layout.count() - 1, params_label, alignment=Qt.AlignCenter)
 
             # Adicionar a imagem
             label = QLabel(self)
             pixmap = QPixmap(image_path)
             label.setPixmap(pixmap)
-            self.layout.addWidget(label, alignment=Qt.AlignCenter)
+            self.layout.insertWidget(self.layout.count() - 1, label, alignment=Qt.AlignCenter)
         else:
             print(f"Imagem {image_path} não encontrada.")
 
