@@ -19,7 +19,7 @@ class Controller:
         self.aderency_view = AderencyView()
         self.aderency_view.shown.connect(self.run_test_and_show_results)
         self.confiability_view = ConfiabilityView()
-        self.aderency_view.realizeAnalysis.clicked.connect(self.switch_to_confiability_view)
+        self.aderency_view.realizeAnalysis.clicked.connect(self.calculate_time_from_confidence)
         self.best_distribution = None
         self.alpha = None
         self.beta = None
@@ -119,7 +119,7 @@ class Controller:
         self.confiability_view.registerButton.clicked.connect(self.calculate_time_from_confidence)
 
     def calculate_time_from_confidence(self):
-        confidence_text = self.confiability_view.inputBox.text()
+        confidence_text = self.aderency_view.inputBox.text()
         if confidence_text.endswith('%'):
             confidence_text = confidence_text[:-1]  # Remove the '%' symbol
         confidence = float(confidence_text)
@@ -132,5 +132,5 @@ class Controller:
         else:
             time_for_reliability = calculate_time_lognormal(self.mu, self.sigma, confidence)
 
-        self.confiability_view.responseOutput.setText(f"Tempo correspondente: {time_for_reliability:.2f} {self.tbf_unit}")
+        self.aderency_view.responseOutput.setText(f"Tempo correspondente: {time_for_reliability:.2f} {self.tbf_unit}")
         print(f"Tempo correspondente: {time_for_reliability:.2f} {self.tbf_unit}")
