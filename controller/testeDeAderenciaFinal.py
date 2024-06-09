@@ -2,13 +2,32 @@ import numpy as np
 import matplotlib.pyplot as plt
 from reliability.Fitters import Fit_Weibull_2P, Fit_Lognormal_2P
 from scipy.stats import norm
+from scipy.stats import weibull_min
 
-def calculate_time_weibull( alpha, beta, reliability_min):
-    return beta * (-np.log(reliability_min)) ** (1 / alpha)
 
-def calculate_time_lognormal( mu, sigma, reliability_min):
+def calculate_time_weibull(alpha, beta, reliability_min):
+    """
+    Calcula o tempo até que a confiabilidade caia para um determinado valor na distribuição Weibull.
+
+    Parâmetros:
+    - alpha: Parâmetro de escala da distribuição Weibull.
+    - beta: Parâmetro de forma da distribuição Weibull.
+    - reliability_min: Confiança mínima desejada (0 < reliability_min < 1), onde reliability_min é o valor de confiabilidade que queremos alcançar.
+
+    Retorna:
+    - Tempo correspondente para a confiabilidade dada.
+    """
+    # Calcula o tempo correspondente na distribuição Weibull
+    time = alpha * (-np.log(reliability_min)) ** (1 / beta)
+
+    return time
+
+
+def calculate_time_lognormal(mu, sigma, reliability_min):
+    print(reliability_min)
     z = norm.ppf(1 - reliability_min)
     return np.exp(mu + sigma * z)
+
 
 def calculate_r_squared(observed, predicted):
     """
@@ -38,7 +57,7 @@ def calculate_mse(observed, predicted):
 
 def compare_distributions(fail_times, tbf_unit):
     """
-    Compara as distribuições Weibull, Gamma e Lognormal com base nas métricas (R², MAE e MSE)
+    Compara as distribuições Weibull e Lognormal com base em uma pontuação combinada das métricas (R², MAE e MSE)
     e retorna a distribuição que apresenta a maior aderência aos dados.
     """
     # Ajustar distribuição Weibull de 2 parâmetros
@@ -63,21 +82,23 @@ def compare_distributions(fail_times, tbf_unit):
     mae_lognorm = calculate_mae(np.sort(fail_times), predicted_lognorm)
     mse_lognorm = calculate_mse(np.sort(fail_times), predicted_lognorm)
 
-    # Exibir as métricas calculadas para cada distribuição
-    print(f"Weibull - R²: {r_squared_wb}, MAE: {mae_wb}, MSE: {mse_wb}")
+    # Normalizar MAE e MSE (inverter para que maior seja melhor)
+    max_mae = max(mae_wb, mae_lognorm)
+    max_mse = max(mse_wb, mse_lognorm)
+    norm_mae_wb = 1 / (mae_wb / max_mae)
+    norm_mae_lognorm = 1 / (mae_lognorm / max_mae)
+    norm_mse_wb = 1 / (mse_wb / max_mse)
+    norm_mse_lognorm = 1 / (mse_lognorm / max_mse)
+
+    # Calcular pontuação combinada para cada distribuição (assumindo pesos iguais)
+    score_wb = (r_squared_wb + norm_mae_wb + norm_mse_wb) / 3
+    score_lognorm = (r_squared_lognorm + norm_mae_lognorm + norm_mse_lognorm) / 3
+
+    # Determinar a melhor distribuição com base na pontuação
+    best_distribution = "Weibull" if score_wb > score_lognorm else "Lognormal"
     print(
-        f"Lognormal - R²: {r_squared_lognorm}, MAE: {mae_lognorm}, MSE: {mse_lognorm}"
+        f"A distribuição com maior aderência é: {best_distribution} (Weibull: {score_wb}, Lognormal: {score_lognorm})"
     )
-
-    # Comparar as métricas e determinar a distribuição com maior aderência
-    metrics = {
-        "Weibull": (r_squared_wb, mae_wb, mse_wb),
-        "Lognormal": (r_squared_lognorm, mae_lognorm, mse_lognorm),
-    }
-
-    # Identificar a distribuição com a maior aderência (maior R²)
-    best_distribution = max(metrics, key=lambda k: metrics[k][0])
-    print(f"A distribuição com maior aderência é: {best_distribution}")
 
     # Plotar o gráfico de confiabilidade para a distribuição escolhida
     if best_distribution == "Weibull":
