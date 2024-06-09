@@ -2,10 +2,13 @@ from model import Model
 from view.view import View
 from view.repair_view import RepairView
 from view.aderency_view import AderencyView
-from view.confiability_view import ConfiabilityView
 import uuid
 from PyQt5.QtWidgets import QMessageBox
-from .testeDeAderenciaFinal import compare_distributions, calculate_time_weibull, calculate_time_lognormal
+from .testeDeAderenciaFinal import (
+    compare_distributions,
+    calculate_time_weibull,
+    calculate_time_lognormal,
+)
 
 
 class Controller:
@@ -18,15 +21,15 @@ class Controller:
         self.view.show()
         self.aderency_view = AderencyView()
         self.aderency_view.shown.connect(self.run_test_and_show_results)
-        self.confiability_view = ConfiabilityView()
-        self.aderency_view.realizeAnalysis.clicked.connect(self.switch_to_confiability_view)
+        self.aderency_view.realizeAnalysis.clicked.connect(
+            self.calculate_time_from_confidence
+        )
         self.best_distribution = None
         self.alpha = None
         self.beta = None
         self.mu = None
         self.sigma = None
         self.tbf_unit = None
-        
 
     def get_component_id(self):
         return self.component_id
@@ -112,15 +115,10 @@ class Controller:
                 f"Gráfico da Melhor Distribuição: Lognormal, CI: 90%, μ: {self.mu:.2f}, σ: {self.sigma:.2f}",
             )
         print(f"A distribuição com maior aderência é: {self.best_distribution}")
-        
-    def switch_to_confiability_view(self):
-        # self.aderency_view.hide()
-        self.confiability_view.show()
-        self.confiability_view.registerButton.clicked.connect(self.calculate_time_from_confidence)
 
     def calculate_time_from_confidence(self):
-        confidence_text = self.confiability_view.inputBox.text()
-        if confidence_text.endswith('%'):
+        confidence_text = self.aderency_view.inputBox.text()
+        if confidence_text.endswith("%"):
             confidence_text = confidence_text[:-1]  # Remove the '%' symbol
         confidence = float(confidence_text)
         confidence = confidence / 100
@@ -128,9 +126,15 @@ class Controller:
         print(f" Sigma: {self.sigma}")
 
         if self.best_distribution == "Weibull":
-            time_for_reliability = calculate_time_weibull(self.alpha, self.beta, confidence)
+            time_for_reliability = calculate_time_weibull(
+                self.alpha, self.beta, confidence
+            )
         else:
-            time_for_reliability = calculate_time_lognormal(self.mu, self.sigma, confidence)
+            time_for_reliability = calculate_time_lognormal(
+                self.mu, self.sigma, confidence
+            )
 
-        self.confiability_view.responseOutput.setText(f"Tempo correspondente: {time_for_reliability:.2f} {self.tbf_unit}")
+        self.aderency_view.responseOutput.setText(
+            f"Tempo correspondente: {time_for_reliability:.2f} {self.tbf_unit}"
+        )
         print(f"Tempo correspondente: {time_for_reliability:.2f} {self.tbf_unit}")
