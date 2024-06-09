@@ -103,6 +103,7 @@ class Controller:
         if self.best_distribution == "Weibull":
             self.alpha = dist.alpha
             self.beta = dist.beta
+            print("alpha: ", self.alpha, " beta: ", self.beta)
             self.aderency_view.display_image(
                 "best_distribution.png",
                 f"Gráfico da Melhor Distribuição: Weibull, CI: 90%, α: {self.alpha:.2f}, β: {self.beta:.2f}",
@@ -123,13 +124,27 @@ class Controller:
         confidence = float(confidence_text)
         confidence = confidence / 100
 
-        print(f" Sigma: {self.sigma}")
-
         if self.best_distribution == "Weibull":
+            print(
+                "Calculando tempo correspondente para Weibull com os parametros alpha ",
+                self.alpha,
+                " e beta ",
+                self.beta,
+                " e confiança ",
+                confidence,
+            )
             time_for_reliability = calculate_time_weibull(
                 self.alpha, self.beta, confidence
             )
         else:
+            print(
+                "Calculando tempo correspondente para Lognormal com os parametros mu ",
+                self.mu,
+                " e sigma ",
+                self.sigma,
+                " e confiança ",
+                confidence,
+            )
             time_for_reliability = calculate_time_lognormal(
                 self.mu, self.sigma, confidence
             )
