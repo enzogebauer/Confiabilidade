@@ -1,7 +1,6 @@
 import PyQt5.QtWidgets as qtw
 import PyQt5.QtGui as qtg
 import PyQt5.QtCore as qtc
-import re
 from fractions import Fraction
 
 
@@ -61,9 +60,9 @@ class RepairView(qtw.QWidget):
             [
                 "ID",
                 "Tempo entre falhas",
-                "Unidade TBF",
+                "Unidade TEF",
                 "Tempo de reparo",
-                "Unidade RT",
+                "Unidade TR",
                 "Remover",
             ]
         )
@@ -126,14 +125,9 @@ class RepairView(qtw.QWidget):
         self.repairTimeInputBox.clear()
 
     def validate_units(self, tbf_unit, rt_unit):
-        existing_tbf_units = set(self.get_column_units(2))
-        existing_rt_units = set(self.get_column_units(4))
-
-        if (existing_tbf_units and tbf_unit not in existing_tbf_units) or (
-            existing_rt_units and rt_unit not in existing_rt_units
-        ):
-            return False
-        return True
+        # Check if the units are either "horas" or "dias"
+        valid_units = {"horas", "dias"}
+        return tbf_unit in valid_units and rt_unit in valid_units
 
     def get_column_units(self, column_index):
         units = []
@@ -157,9 +151,16 @@ class RepairView(qtw.QWidget):
         self.repairTable.insertRow(row)
         self.repairTable.setItem(row, 0, qtw.QTableWidgetItem(str(id)))
         self.repairTable.setItem(row, 1, qtw.QTableWidgetItem(str(time_between_fails)))
-        self.repairTable.setItem(row, 2, qtw.QTableWidgetItem(str(tbf_unit)))
+
+        tbf_unit_item = qtw.QTableWidgetItem(str(tbf_unit))
+        tbf_unit_item.setFlags(tbf_unit_item.flags() ^ qtc.Qt.ItemIsEditable)
+        self.repairTable.setItem(row, 2, tbf_unit_item)
+
         self.repairTable.setItem(row, 3, qtw.QTableWidgetItem(str(repair_time)))
-        self.repairTable.setItem(row, 4, qtw.QTableWidgetItem(rt_unit))
+
+        rt_unit_item = qtw.QTableWidgetItem(rt_unit)
+        rt_unit_item.setFlags(rt_unit_item.flags() ^ qtc.Qt.ItemIsEditable)
+        self.repairTable.setItem(row, 4, rt_unit_item)
 
         remove_button = qtw.QPushButton("Remover")
         remove_button.clicked.connect(lambda: self.remove_repair(row))
