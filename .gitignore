@@ -1,1 +1,4 @@
-__pycache__
+﻿venv
+__pycache__/
+dist/
+build/

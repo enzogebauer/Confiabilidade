@@ -12,7 +12,7 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 class Model:
     def __init__(self):
-        self.conn = sqlite3.connect(resource_path("data/components.db"))
+        self.conn = sqlite3.connect(resource_path("components.db"))
         self.c = self.conn.cursor()
         self.c.execute(
             """CREATE TABLE IF NOT EXISTS Component

@@ -145,6 +145,6 @@ def compare_distributions(fail_times, tbf_unit):
     plt.xlabel(f"Tempo ({tbf_unit})")
     plt.ylabel("Confiabilidade em decimal com valores de 0 a 1")
     plt.title(f"Gráfico de Confiabilidade para Distribuição {best_distribution}")
-    plt.savefig(resource_path("assets/best_distribution.png"))
+    plt.savefig(resource_path("best_distribution.png"))
 
     return dist, best_distribution

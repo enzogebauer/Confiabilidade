@@ -115,14 +115,14 @@ class Controller:
             self.beta = dist.beta
             print("alpha: ", self.alpha, " beta: ", self.beta)
             self.aderency_view.display_image(
-               resource_path("assets/best_distribution.png"),
+               resource_path("best_distribution.png"),
                 f"Gráfico da Melhor Distribuição: Weibull, CI: 90%, α: {self.alpha:.2f}, β: {self.beta:.2f}",
             )
         else:
             self.mu = dist.mu
             self.sigma = dist.sigma
             self.aderency_view.display_image(
-                resource_path("assets/best_distribution.png"),
+                resource_path("best_distribution.png"),
                 f"Gráfico da Melhor Distribuição: Lognormal, CI: 90%, μ: {self.mu:.2f}, σ: {self.sigma:.2f}",
             )
         print(f"A distribuição com maior aderência é: {self.best_distribution}")

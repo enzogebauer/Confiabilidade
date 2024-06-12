@@ -1,0 +1,38 @@
+# Instruções para configurar o ambiente e instalar dependências
+
+## Passo 1: Instalar o Python
+Certifique-se de ter o Python instalado no seu sistema. Você pode baixar a versão mais recente do Python a partir de https://www.python.org/.
+
+## Passo 2: Criar um ambiente virtual
+Abra o terminal (ou prompt de comando no Windows) e navegue até o diretório do seu projeto. Em seguida, execute o seguinte comando para criar um ambiente virtual:
+
+python -m venv venv
+
+Este comando criará uma pasta chamada `venv` no seu diretório de projeto que conterá o ambiente virtual.
+
+## Passo 3: Ativar o ambiente virtual
+### No Windows:
+.\venv\Scripts\activate
+
+
+### No macOS e Linux:
+source venv/bin/activate
+
+##Depois rode o seguinte comando para adentrar o diretório em que está salvo o código python
+ cd code
+
+Depois de ativar o ambiente virtual, seu prompt de comando deve mudar para indicar que você está agora no ambiente virtual.
+pip install -r requirements.txt
+
+
+## Passo 4: Instalar as dependências
+Com o ambiente virtual ativado, execute o seguinte comando para instalar todas as dependências listadas no arquivo `requirements.txt`:
+
+Isso instalará todas as bibliotecas necessárias para o seu aplicativo.
+
+## Passo 5: Executar o aplicativo
+Agora, você pode executar seu aplicativo Python normalmente. Certifique-se de que o ambiente virtual está ativado ao executar o aplicativo.
+
+
+python main.py
+

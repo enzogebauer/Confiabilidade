@@ -1,6 +1,7 @@
 import controller
 import PyQt5.QtWidgets as qtw
 import os
+import sys
 
 def resource_path(relative_path):
     try:
