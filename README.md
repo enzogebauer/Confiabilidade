@@ -23,7 +23,7 @@ Para instalar o software, siga os passos abaixo:
 
 ## Uso
 
-1. Inicie o software.
+1. Inicie o software em modo administrador.
 2. Insira manualmete os dados (Tag, Descrição, Falhas, Reparos e Confiabilidade).
 3. Analise a confiabilidade e o gráfico.
 
